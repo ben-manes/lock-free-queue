@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @author ben.manes@gmail.com (Ben Manes)
  * @param <E> the type of elements held in this collection
  */
-public final class SingleConsumerQueue<E> extends AbstractQueue<E> {
+public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
   static int ceilingNextPowerOfTwo(int x) {
     // From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
     return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
@@ -53,7 +53,10 @@ public final class SingleConsumerQueue<E> extends AbstractQueue<E> {
   Node<E> headNode;
   final AtomicReference<Node<E>> tailNode;
 
-  public SingleConsumerQueue(int estimatedCapacity) {
+  public ConcurrentSingleConsumerQueue(int estimatedCapacity) {
+    if (estimatedCapacity <= 0) {
+      throw new IllegalArgumentException();
+    }
     array = new AtomicReferenceArray<E>(ceilingNextPowerOfTwo(estimatedCapacity));
     mask = array.length() - 1;
     head = new AtomicLong();
@@ -70,6 +73,10 @@ public final class SingleConsumerQueue<E> extends AbstractQueue<E> {
   @Override
   public int size() {
     return (int) (tail.get() - head.get());
+  }
+
+  public int estimatedCapacity() {
+    return array.length();
   }
 
   @Override

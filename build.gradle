@@ -1,7 +1,17 @@
 apply plugin: "java"
 
 dependencies {
-  
+  testCompile "com.google.caliper:caliper:0.5-rc1"
+}
+
+repositories {
+  mavenCentral()
+}
+
+task singleThreaded(dependsOn: "classes", type: JavaExec, 
+    description: "Single Threaded Benchmark", group: "Benchmark") {
+  classpath = sourceSets.test.runtimeClasspath
+  main = "com.github.benmanes.lockfreequeue.QueueBenchmark"
 }
 
 task wrapper(type: Wrapper, description: "Generates the gradle wrapper") {
