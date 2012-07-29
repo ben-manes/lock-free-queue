@@ -13,7 +13,7 @@ import com.google.caliper.SimpleBenchmark;
  *
  * @author ben.manes@gmail.com (Ben Manes)
  */
-public final class QueueBenchmark extends SimpleBenchmark {
+public class QueueBenchmark extends SimpleBenchmark {
   private ConcurrentSingleConsumerQueue<Integer> linkedSingleConsumerQueue;
   private ConcurrentSingleConsumerQueue<Integer> arraySingleConsumerQueue;
   private Queue<Integer> concurrentLinkedQueue;

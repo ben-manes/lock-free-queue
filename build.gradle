@@ -8,10 +8,18 @@ repositories {
   mavenCentral()
 }
 
-task singleThreaded(dependsOn: "classes", type: JavaExec, 
-    description: "Single Threaded Benchmark", group: "Benchmark") {
+task singleThreadedBenchmark(dependsOn: "classes", type: JavaExec, 
+    description: "Single-threaded benchmark", group: "Benchmark") {
   classpath = sourceSets.test.runtimeClasspath
   main = "com.github.benmanes.lockfreequeue.QueueBenchmark"
+}
+
+task customBenchmark(dependsOn: "classes", type: JavaExec, 
+    description: "Custom single-threaded benchmark", group: "Benchmark") {
+  classpath = sourceSets.test.runtimeClasspath
+  main = "com.github.benmanes.lockfreequeue.CustomBenchmark"
+  if (project.hasProperty("setUp"))
+    args = ["setUp"]
 }
 
 task wrapper(type: Wrapper, description: "Generates the gradle wrapper") {
