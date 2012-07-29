@@ -1,0 +1,9 @@
+apply plugin: "java"
+
+dependencies {
+  
+}
+
+task wrapper(type: Wrapper, description: "Generates the gradle wrapper") {
+  gradleVersion = "1.0"
+}
