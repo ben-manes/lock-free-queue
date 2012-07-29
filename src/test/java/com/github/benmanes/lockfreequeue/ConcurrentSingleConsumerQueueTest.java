@@ -8,9 +8,7 @@ import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 /**
  * A unit-test for {@link java.util.Queue} interface. These tests do not assert
@@ -47,15 +45,22 @@ public final class ConcurrentSingleConsumerQueueTest {
     assertThat(queue.isEmpty(), is(false));
   }
 
-  @Test(dataProvider = "warmedQueue")
-  public void equals_withNull(Queue<Integer> queue) {
-    assertThat(queue, is(not(equalTo(null))));
+  @Test(dataProvider = "emptyQueue")
+  public void contains_withNull(Queue<Integer> queue) {
+    assertThat(queue.contains(null), is(false));
   }
 
-  @Test(enabled = false, dataProvider = "warmedMap")
-  public void equals_withSelf(Queue<Integer> queue) {
-    assertThat(queue, is(equalTo(queue)));
+  @Test(dataProvider = "warmedQueue")
+  public void contains_whenFound(Queue<Integer> queue) {
+    assertThat(queue.contains(1), is(true));
   }
+
+  @Test(dataProvider = "warmedQueue")
+  public void contains_whenNotFound(Queue<Integer> queue) {
+    assertThat(queue.contains(-1), is(false));
+  }
+
+  /* ---------------- Queue providers -------------- */
 
   @DataProvider(name = "allQueues")
   public Object[][] providesAllQueues() {
@@ -84,7 +89,7 @@ public final class ConcurrentSingleConsumerQueueTest {
 
   private void warmUp(Queue<Integer> queue, int count) {
     for (int i = 0; i < count; i++) {
-      queue.add(i);
+      queue.add(i + 1);
     }
   }
 }

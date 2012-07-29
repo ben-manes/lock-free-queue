@@ -18,14 +18,6 @@ public class CustomBenchmark {
     benchmark.setUp();
   }
 
-  void runCLQ() {
-    final long start = System.nanoTime();
-    benchmark.timeConcurrentLinkedQueue(ITERATIONS);
-    final long time = System.nanoTime() - start;
-
-    System.out.printf("%s: %,d ns/op\n", "ConcurrentLinkedQueue", time / ITERATIONS);
-  }
-
   void runCSCQ_array() {
     final long start = System.nanoTime();
     benchmark.timeConcurrentSingleConsumerQueue_array(ITERATIONS);
@@ -42,6 +34,22 @@ public class CustomBenchmark {
     System.out.printf("%s: %,d ns/op\n", "ConcurrentSingleConsumerQueue_linked", time / ITERATIONS);
   }
 
+  void runCLQ() {
+    final long start = System.nanoTime();
+    benchmark.timeConcurrentLinkedQueue(ITERATIONS);
+    final long time = System.nanoTime() - start;
+
+    System.out.printf("%s: %,d ns/op\n", "ConcurrentLinkedQueue", time / ITERATIONS);
+  }
+
+  void runMPSCQ() {
+    final long start = System.nanoTime();
+    benchmark.timeMultiProducerSingleConsumer(ITERATIONS);
+    final long time = System.nanoTime() - start;
+
+    System.out.printf("%s: %,d ns/op\n", "MPSCQueue", time / ITERATIONS);
+  }
+
   public static void main(String[] args) {
     boolean setUp = Arrays.asList(args).contains("setUp");
     CustomBenchmark benchmark = new CustomBenchmark();
@@ -50,13 +58,25 @@ public class CustomBenchmark {
     for (int i = 0; i < 3; i++) {
       System.out.printf("--- %d ---\n", i + 1);
 
-      benchmark.runCLQ();
+      if (setUp) {
+        benchmark.setUp();
+      }
       benchmark.runCSCQ_array();
 
       if (setUp) {
         benchmark.setUp();
       }
       benchmark.runCSCQ_linked();
+
+      if (setUp) {
+        benchmark.setUp();
+      }
+      benchmark.runCLQ();
+
+      if (setUp) {
+        benchmark.setUp();
+      }
+      benchmark.runMPSCQ();
     }
   }
 }
