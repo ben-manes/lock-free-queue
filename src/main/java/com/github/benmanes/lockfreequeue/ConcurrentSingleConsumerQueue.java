@@ -34,9 +34,9 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * element that has been on the queue the shortest time. New elements are inserted at the tail of
  * the queue, and the queue retrieval operations obtain elements at the head of the queue.
  * <p>
- * A {@code SingleConsumerQueue} is an appropriate choice when many threads produce into a common
- * collection and, at a given instant, only a single thread consumes from the collection. This
- * queue does not permit {@code null} elements.
+ * A {@code ConcurrentSingleConsumerQueue} is an appropriate choice when many threads produce into
+ * a common collection and, at a given instant, only a single thread consumes from the collection.
+ * This queue does not permit {@code null} elements.
  *
  * @author ben.manes@gmail.com (Ben Manes)
  * @param <E> the type of elements held in this collection

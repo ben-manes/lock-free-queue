@@ -1,7 +1,13 @@
+/* Copyright 2012 Ben Manes. All Rights Reserved. */
 package com.github.benmanes.lockfreequeue;
 
 import java.util.Arrays;
 
+/**
+ * This benchmark evaluates single-threaded performance.
+ *
+ * @author ben.manes@gmail.com (Ben Manes)
+ */
 public class CustomBenchmark {
   private static final int ITERATIONS = 100000000;
 
