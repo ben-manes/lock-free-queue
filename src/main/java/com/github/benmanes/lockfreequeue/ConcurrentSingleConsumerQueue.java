@@ -136,8 +136,8 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
   public Iterator<E> iterator() {
     return new Iterator<E>() {
       long cursor = head.get();
+      Node<E> cursorNode = headNode;
       long expectedModCount = cursor;
-      Node<E> cursorNode = headNode.get();
 
       @Override
       public boolean hasNext() {

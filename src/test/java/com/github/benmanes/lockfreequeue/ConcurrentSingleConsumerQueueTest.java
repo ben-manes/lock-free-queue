@@ -1,12 +1,16 @@
 /* Copyright 2012 Ben Manes. All Rights Reserved. */
 package com.github.benmanes.lockfreequeue;
 
+import java.util.Queue;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * A unit-test for {@link java.util.Queue} interface. These tests do not assert
@@ -17,18 +21,70 @@ import static org.hamcrest.Matchers.is;
 public final class ConcurrentSingleConsumerQueueTest {
   private static final int ESTIMATED_CAPACITY = 16;
 
-  @Test(dataProvider = "emptyQueue")
-  public void size_whenEmpty(ConcurrentSingleConsumerQueue<Integer> queue) {
-    assertThat(queue.size(), is(0));
+  @Test(enabled = false, dataProvider = "allQueues")
+  public void clear(Queue<Integer> queue) {
+    queue.clear();
+    assertThat(queue, is(empty()));
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void isEmpty_whenEmpty(ConcurrentSingleConsumerQueue<Integer> queue) {
-    assertThat(queue, is(empty()));
+  public void size_whenEmpty(Queue<Integer> queue) {
+    assertThat(queue.size(), is(0));
+  }
+
+  @Test(dataProvider = "warmedQueue")
+  public void size_whenPopulated(Queue<Integer> queue) {
+    assertThat(queue.size(), is(2 * ESTIMATED_CAPACITY));
+  }
+
+  @Test(dataProvider = "emptyQueue")
+  public void isEmpty_whenEmpty(Queue<Integer> queue) {
+    assertThat(queue.isEmpty(), is(true));
+  }
+
+  @Test(dataProvider = "warmedQueue")
+  public void isEmpty_whenPopulated(Queue<Integer> queue) {
+    assertThat(queue.isEmpty(), is(false));
+  }
+
+  @Test(dataProvider = "warmedQueue")
+  public void equals_withNull(Queue<Integer> queue) {
+    assertThat(queue, is(not(equalTo(null))));
+  }
+
+  @Test(enabled = false, dataProvider = "warmedMap")
+  public void equals_withSelf(Queue<Integer> queue) {
+    assertThat(queue, is(equalTo(queue)));
+  }
+
+  @DataProvider(name = "allQueues")
+  public Object[][] providesAllQueues() {
+    return new Object[][] {{ emptyQueue() }, { warmedQueue() }};
   }
 
   @DataProvider(name = "emptyQueue")
   public Object[][] providesEmptyQueue() {
     return new Object[][] {{ new ConcurrentSingleConsumerQueue<Integer>(ESTIMATED_CAPACITY) }};
+  }
+
+  @DataProvider(name = "warmedQueue")
+  public Object[][] providesWarmedQueue() {
+    return new Object[][] {{ warmedQueue() }};
+  }
+
+  private Queue<Integer> emptyQueue() {
+    return new ConcurrentSingleConsumerQueue<Integer>(ESTIMATED_CAPACITY);
+  }
+
+  private Queue<Integer> warmedQueue() {
+    Queue<Integer> queue = new ConcurrentSingleConsumerQueue<Integer>(ESTIMATED_CAPACITY);
+    warmUp(queue, 2 * ESTIMATED_CAPACITY);
+    return queue;
+  }
+
+  private void warmUp(Queue<Integer> queue, int count) {
+    for (int i = 0; i < count; i++) {
+      queue.add(i);
+    }
   }
 }
