@@ -16,7 +16,9 @@
 package com.github.benmanes.lockfreequeue;
 
 import java.util.AbstractQueue;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,6 +83,9 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
 
   @Override
   public boolean offer(E e) {
+    if (e == null) {
+      throw new NullPointerException();
+    }
     long t = tail.getAndIncrement();
     long h = head.get();
     if ((t - h) < array.length()) {
@@ -99,11 +104,12 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
     long t = tail.get();
     if (h == t) {
       return null;
-    } else if ((t - h) < array.length()) {
+    }
+    head.lazySet(h + 1);
+    if ((t - h) < array.length()) {
       int index = (int) h & mask;
       E e = array.get(index);
       array.lazySet(index, null);
-      head.lazySet(h + 1);
       return e;
     } else {
       Node<E> next = headNode.get();
@@ -114,12 +120,53 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
 
   @Override
   public E peek() {
-    throw new UnsupportedOperationException();
+    long h = head.get();
+    long t = tail.get();
+    if (h == t) {
+      return null;
+    } else if ((t - h) < array.length()) {
+      int index = (int) h & mask;
+      return array.get(index);
+    } else {
+      return headNode.get().value;
+    }
   }
 
   @Override
   public Iterator<E> iterator() {
-    throw new UnsupportedOperationException();
+    return new Iterator<E>() {
+      long cursor = head.get();
+      long expectedModCount = cursor;
+      Node<E> cursorNode = headNode.get();
+
+      @Override
+      public boolean hasNext() {
+        return cursor != tail.get();
+      }
+
+      @Override
+      public E next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } else if (head.get() != expectedModCount) {
+          throw new ConcurrentModificationException();
+        }
+        cursor++;
+        if ((tail.get() - cursor) < array.length()) {
+          int index = (int) cursor & mask;
+          return array.get(index);
+        } else {
+          Node<E> next = cursorNode.get();
+          cursorNode = next;
+          return next.value;
+        }
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   static final class Node<T> extends AtomicReference<Node<T>> {
