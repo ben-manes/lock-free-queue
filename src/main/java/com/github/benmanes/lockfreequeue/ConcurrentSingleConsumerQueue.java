@@ -103,6 +103,18 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
   }
 
   @Override
+  public E peek() {
+    long h = head.get();
+    long t = tail.get();
+    if (h == t) {
+      return null;
+    }
+    int index = (int) h & mask;
+    E e = array.get(index);
+    return (e == null) ? headNode.get().value : e;
+  }
+
+  @Override
   public E poll() {
     long h = head.get();
     long t = tail.get();
@@ -122,16 +134,21 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
     return e;
   }
 
-  @Override
-  public E peek() {
-    long h = head.get();
-    long t = tail.get();
-    if (h == t) {
-      return null;
+  /**
+   * Removes at most the given number of available elements from this queue and adds them to the
+   * given array.
+   *
+   * @param out the array to transfer elements into
+   * @return the number of elements transferred
+   */
+  public int drainTo(E[] out) {
+    for (int i = 0; i < out.length; i++) {
+      out[i] = poll(); // TODO(bmanes): optimize
+      if (out[i] == null) {
+        return i;
+      }
     }
-    int index = (int) h & mask;
-    E e = array.get(index);
-    return (e == null) ? headNode.get().value : e;
+    return out.length;
   }
 
   @Override

@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -104,6 +105,16 @@ public final class ConcurrentSingleConsumerQueueTest {
   }
 
   @Test(dataProvider = "emptyQueue")
+  public void peek_whenEmpty(Queue<?> queue) {
+    assertThat(queue.peek(), is(nullValue()));
+  }
+
+  @Test(dataProvider = "allWarmedQueues")
+  public void peek(Queue<Integer> queue) {
+    assertThat(queue.peek(), is(1));
+  }
+
+  @Test(dataProvider = "emptyQueue")
   public void poll_whenEmpty(Queue<?> queue) {
     assertThat(queue.poll(), is(nullValue()));
   }
@@ -119,13 +130,17 @@ public final class ConcurrentSingleConsumerQueueTest {
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void peek_whenEmpty(Queue<?> queue) {
-    assertThat(queue.peek(), is(nullValue()));
+  public void drainTo_whenEmpty(ConcurrentSingleConsumerQueue<Integer> queue) {
+    Integer[] out = new Integer[WARMED_ARRAY_SIZE];
+    assertThat(queue.drainTo(out), is(0));
+    assertThat(out, is(equalTo(new Integer[WARMED_ARRAY_SIZE])));
   }
 
-  @Test(dataProvider = "allWarmedQueues")
-  public void peek(Queue<Integer> queue) {
-    assertThat(queue.peek(), is(1));
+  @Test(dataProvider = "allQueues")
+  public void drainTo_withZeroSizeArray(ConcurrentSingleConsumerQueue<Integer> queue) {
+    Integer[] out = new Integer[0];
+    assertThat(queue.drainTo(out), is(0));
+    assertThat(out, is(equalTo(new Integer[0])));
   }
 
   /* ---------------- Queue providers -------------- */
