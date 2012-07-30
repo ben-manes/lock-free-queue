@@ -25,54 +25,65 @@ public final class ConcurrentSingleConsumerQueueTest {
   private static final int WARMED_ARRAY_SIZE = 16;
   private static final int WARMED_LIST_SIZE = 32;
 
-  @Test(enabled = false, dataProvider = "allQueues")
-  public void clear(Queue<Integer> queue) {
+  @Test(dataProvider = "allQueues")
+  public void clear(Queue<?> queue) {
     queue.clear();
     assertThat(queue, is(empty()));
   }
 
+  @Test(dataProvider = "allQueues")
+  public void estimatedCapacity(ConcurrentSingleConsumerQueue<?> queue) {
+    assertThat(queue.estimatedCapacity(), is(WARMED_ARRAY_SIZE));
+  }
+
+  @Test
+  public void estimatedCapacity_powerOfTwo() {
+    ConcurrentSingleConsumerQueue<?> queue = new ConcurrentSingleConsumerQueue<Integer>(12);
+    assertThat(queue.estimatedCapacity(), is(16));
+  }
+
   @Test(dataProvider = "emptyQueue")
-  public void size_whenEmpty(Queue<Integer> queue) {
+  public void size_whenEmpty(Queue<?> queue) {
     assertThat(queue.size(), is(0));
   }
 
   @Test(dataProvider = "warmedArrayQueue")
-  public void size_whenArrayPopulated(Queue<Integer> queue) {
+  public void size_whenArrayPopulated(Queue<?> queue) {
     assertThat(queue.size(), is(WARMED_ARRAY_SIZE));
   }
 
   @Test(dataProvider = "warmedListQueue")
-  public void size_whenListPopulated(Queue<Integer> queue) {
+  public void size_whenListPopulated(Queue<?> queue) {
     assertThat(queue.size(), is(WARMED_LIST_SIZE));
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void isEmpty_whenEmpty(Queue<Integer> queue) {
+  public void isEmpty_whenEmpty(Queue<?> queue) {
     assertThat(queue.isEmpty(), is(true));
   }
 
   @Test(dataProvider = "allWarmedQueues")
-  public void isEmpty_whenPopulated(Queue<Integer> queue) {
+  public void isEmpty_whenPopulated(Queue<?> queue) {
     assertThat(queue.isEmpty(), is(false));
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void contains_withNull(Queue<Integer> queue) {
+  public void contains_withNull(Queue<?> queue) {
     assertThat(queue.contains(null), is(false));
   }
 
   @Test(dataProvider = "allWarmedQueues")
-  public void contains_whenFound(Queue<Integer> queue) {
+  public void contains_whenFound(Queue<?> queue) {
     assertThat(queue.contains(1), is(true));
   }
 
   @Test(dataProvider = "allWarmedQueues")
-  public void contains_whenNotFound(Queue<Integer> queue) {
+  public void contains_whenNotFound(Queue<?> queue) {
     assertThat(queue.contains(-1), is(false));
   }
 
   @Test(dataProvider = "emptyQueue", expectedExceptions = NullPointerException.class)
-  public void offer_withNull(Queue<Integer> queue) {
+  public void offer_withNull(Queue<?> queue) {
     queue.offer(null);
   }
 
@@ -93,7 +104,7 @@ public final class ConcurrentSingleConsumerQueueTest {
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void poll_whenEmpty(Queue<Integer> queue) {
+  public void poll_whenEmpty(Queue<?> queue) {
     assertThat(queue.poll(), is(nullValue()));
   }
 
@@ -108,7 +119,7 @@ public final class ConcurrentSingleConsumerQueueTest {
   }
 
   @Test(dataProvider = "emptyQueue")
-  public void peek_whenEmpty(Queue<Integer> queue) {
+  public void peek_whenEmpty(Queue<?> queue) {
     assertThat(queue.peek(), is(nullValue()));
   }
 
