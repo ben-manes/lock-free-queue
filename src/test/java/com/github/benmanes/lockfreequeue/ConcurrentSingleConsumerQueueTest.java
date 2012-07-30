@@ -97,7 +97,7 @@ public final class ConcurrentSingleConsumerQueueTest {
     assertThat(queue.poll(), is(nullValue()));
   }
 
-  @Test(enabled = false, dataProvider = "allWarmedQueues")
+  @Test(dataProvider = "allWarmedQueues")
   public void poll(Queue<Integer> queue) {
     assertThat(queue.poll(), is(1));
   }

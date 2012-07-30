@@ -109,15 +109,14 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
     if (h == t) {
       return null;
     }
-    E e;
-    if ((t - h) < array.length()) {
-      int index = (int) h & mask;
-      e = array.get(index);
-      array.lazySet(index, null);
-    } else {
+    int index = (int) h & mask;
+    E e = array.get(index);
+    if (e == null) {
       Node<E> next = headNode.get();
       headNode = next;
       e = next.value;
+    } else {
+      array.lazySet(index, null);
     }
     head.lazySet(h + 1);
     return e;
