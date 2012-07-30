@@ -148,24 +148,7 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
       public boolean hasNext() {
         return cursor != tail.get();
       }
-//
-//      @Override
-//      public E next() {
-//        if (!hasNext()) {
-//          throw new NoSuchElementException();
-//        } else if (head.get() != expectedModCount) {
-//          throw new ConcurrentModificationException();
-//        }
-//        int index = (int) cursor & mask;
-//        E e = array.get(index);
-//        if (e == null) {
-//          Node<E> next = cursorNode.get();
-//          cursorNode = next;
-//          e = next.value;
-//        }
-//        cursor++;
-//        return e;
-//      }
+
       @Override
       public E next() {
         if (!hasNext()) {
