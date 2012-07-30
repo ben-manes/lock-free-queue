@@ -99,7 +99,22 @@ public final class ConcurrentSingleConsumerQueueTest {
 
   @Test(dataProvider = "allWarmedQueues")
   public void poll(Queue<Integer> queue) {
-    assertThat(queue.poll(), is(1));
+    int originalSize = queue.size();
+    for (int i = 1; i <= originalSize; i++) {
+      assertThat(queue.poll(), is(i));
+      assertThat(queue.size(), is(originalSize - i));
+    }
+    assertThat(queue.size(), is(0));
+  }
+
+  @Test(dataProvider = "emptyQueue")
+  public void peek_whenEmpty(Queue<Integer> queue) {
+    assertThat(queue.peek(), is(nullValue()));
+  }
+
+  @Test(dataProvider = "allWarmedQueues")
+  public void peek(Queue<Integer> queue) {
+    assertThat(queue.peek(), is(1));
   }
 
   /* ---------------- Queue providers -------------- */

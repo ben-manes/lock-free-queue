@@ -128,12 +128,10 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
     long t = tail.get();
     if (h == t) {
       return null;
-    } else if ((t - h) < array.length()) {
-      int index = (int) h & mask;
-      return array.get(index);
-    } else {
-      return headNode.get().value;
     }
+    int index = (int) h & mask;
+    E e = array.get(index);
+    return (e == null) ? headNode.get().value : e;
   }
 
   @Override
