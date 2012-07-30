@@ -74,6 +74,14 @@ public final class ConcurrentSingleConsumerQueueTest {
     }
   }
 
+  @Test(dataProvider = "emptyQueue")
+  public void offer_intoLinkedList(ConcurrentSingleConsumerQueue<Integer> queue) {
+    for (int i = 0; i < (2 * queue.estimatedCapacity()); i++) {
+      queue.offer(i);
+      assertThat(queue, hasItem(i));
+    }
+  }
+
   /* ---------------- Queue providers -------------- */
 
   @DataProvider(name = "allQueues")
