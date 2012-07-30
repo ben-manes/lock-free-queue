@@ -42,6 +42,10 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @param <E> the type of elements held in this collection
  */
 public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
+  // TODO(bmanes): This implementation is experimental, as it contains fundamental problems with
+  // maintaining FIFO order. In particular the transition in and out of the link node based queue
+  // is questionable.
+
   static int ceilingNextPowerOfTwo(int x) {
     // From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
     return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
@@ -105,17 +109,18 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
     if (h == t) {
       return null;
     }
-    head.lazySet(h + 1);
+    E e;
     if ((t - h) < array.length()) {
       int index = (int) h & mask;
-      E e = array.get(index);
+      e = array.get(index);
       array.lazySet(index, null);
-      return e;
     } else {
       Node<E> next = headNode.get();
       headNode = next;
-      return next.value;
+      e = next.value;
     }
+    head.lazySet(h + 1);
+    return e;
   }
 
   @Override
@@ -151,15 +156,15 @@ public final class ConcurrentSingleConsumerQueue<E> extends AbstractQueue<E> {
         } else if (head.get() != expectedModCount) {
           throw new ConcurrentModificationException();
         }
-        cursor++;
-        if ((tail.get() - cursor) < array.length()) {
-          int index = (int) cursor & mask;
-          return array.get(index);
-        } else {
+        int index = (int) cursor & mask;
+        E e = array.get(index);
+        if (e == null) {
           Node<E> next = cursorNode.get();
           cursorNode = next;
-          return next.value;
+          e = next.value;
         }
+        cursor++;
+        return e;
       }
 
       @Override

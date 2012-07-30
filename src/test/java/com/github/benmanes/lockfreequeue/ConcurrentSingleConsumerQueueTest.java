@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -58,6 +59,19 @@ public final class ConcurrentSingleConsumerQueueTest {
   @Test(dataProvider = "warmedQueue")
   public void contains_whenNotFound(Queue<Integer> queue) {
     assertThat(queue.contains(-1), is(false));
+  }
+
+  @Test(dataProvider = "emptyQueue", expectedExceptions = NullPointerException.class)
+  public void offer_withNull(Queue<Integer> queue) {
+    queue.offer(null);
+  }
+
+  @Test(dataProvider = "emptyQueue")
+  public void offer_intoArray(ConcurrentSingleConsumerQueue<Integer> queue) {
+    for (int i = 0; i < queue.estimatedCapacity(); i++) {
+      queue.offer(i);
+      assertThat(queue, hasItem(i));
+    }
   }
 
   /* ---------------- Queue providers -------------- */
